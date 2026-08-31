@@ -1,0 +1,8 @@
+services:
+  cuentas-svc:
+    build: .
+    image: duoc/jv0101-caso04-cuentas:1.0.0
+    container_name: caso04-cuentas-svc
+    ports:
+      - "${PORT:-8080}:8080"
+    restart: unless-stopped

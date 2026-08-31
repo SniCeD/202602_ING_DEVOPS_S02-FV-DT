@@ -1,0 +1,28 @@
+@startuml C4-3-Componentes
+!include <C4/C4_Component>
+
+title ms-cuentas — C4 Nivel 3: Componentes internos
+
+LAYOUT_WITH_LEGEND()
+
+Person(actor, "Cliente bancario", "Opera sus cuentas y transferencias")
+Container_Boundary(ms, "ms-cuentas — Spring Boot 3 (ECS Fargate)") {
+
+  Component(rest, "CuentaController", "Spring MVC REST", "Expone /api/cuentas: crear, consultar, actualizar y eliminar")
+  Component(svc, "CuentaService", "Java 21", "Lógica de negocio del dominio: validaciones, reglas y transiciones")
+  Component(cache, "CacheClient", "Lettuce + ElastiCache", "Cache-Aside de consultas frecuentes")
+  ComponentDb(repo, "CuentaRepository", "Spring Data JPA", "Persistencia en la base de datos propia")
+  Component(pub, "PublicadorEventos", "AWS SDK (EventBridge)", "Publica cambios del catálogo")
+}
+
+Container(apigw, "API Gateway", "Amazon API Gateway", "JWT + throttling")
+
+Rel(actor, apigw, "Usa la API", "HTTPS + JWT")
+Rel(apigw, rest, "Enruta /api/cuentas", "REST")
+Rel(rest, svc, "Delega la consulta")
+Rel(svc, cache, "Lee/escribe la caché", "RESP")
+Rel(svc, repo, "Lee/escribe el catálogo", "JPA / SQL")
+Rel(svc, pub, "Publica el cambio", "AWS SDK")
+
+SHOW_LEGEND()
+@enduml
