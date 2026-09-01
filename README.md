@@ -123,3 +123,7 @@ Los hotfix se crean desde `main`, se fusionan hacia `main` y posteriormente se s
 Cada Pull Request debe ser revisado por el otro integrante del equipo antes de realizar el merge.
 
 El revisor debe comprobar los cambios realizados en la pestaña `Files changed` y puede aprobar, comentar o solicitar modificaciones antes de la integración.
+
+## Reflexiones
+
+Fernando Valenzuela: Esta evaluación me resulto util para entender el porque es necesario crear ramas en lugar de subir todo directo a main, hasta ahora siento que voy bien y no hay algo especifico que me cueste y la parte de que tengamos que aprobar los pull request del otro me parece que es algo que vamos a ver mucho al momento de trabajar en un proyecto real.
