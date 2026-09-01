@@ -67,3 +67,54 @@ mvn verify    # + verificación de cobertura JaCoCo (100% LINE, falla si baja)
 ## Ramificación
 
 Elegimos GitFlow porque nos proporciona un mayor control sobre el código que pasa a producción. Además, este modelo se adapta de forma nativa a la estructura de ramas que solicita este proyecto (main, develop, feature, hotfix).
+
+
+
+## Convenciones y buenas prácticas
+
+### Convención de commits
+
+Los mensajes de commit siguen el formato:
+
+`tipo(alcance): descripcion-corta`
+
+Tipos utilizados:
+
+- `feat`: nueva funcionalidad.
+- `fix`: corrección de errores.
+- `docs`: cambios de documentación.
+- `chore`: tareas de mantenimiento o integración continua.
+
+Ejemplos:
+
+- `feat(ui): agregar pie de pagina`
+- `fix(ui): corregir titulo de la pagina principal`
+- `docs: agregar changelog`
+- `chore(ci): agregar workflow hola mundo`
+
+### Naming de ramas
+
+Las ramas utilizan nombres descriptivos en minúsculas y separados por guiones:
+
+- `feature/descripcion-corta`
+- `hotfix/descripcion-corta`
+
+Ejemplos:
+
+- `feature/pagina-presentacion`
+- `feature/changelog`
+- `hotfix/titulo-pagina`
+
+### Flujo de merge
+
+Los cambios realizados en ramas `feature/` y `hotfix/` se integran mediante Pull Request.
+
+Las features se crean desde `develop` y se fusionan nuevamente hacia `develop`.
+
+Los hotfix se crean desde `main`, se fusionan hacia `main` y posteriormente se sincronizan con `develop`.
+
+### Estrategia de revisión
+
+Cada Pull Request debe ser revisado por el otro integrante del equipo antes de realizar el merge.
+
+El revisor debe comprobar los cambios realizados en la pestaña `Files changed` y puede aprobar, comentar o solicitar modificaciones antes de la integración.
