@@ -66,6 +66,11 @@ mvn verify    # + verificación de cobertura JaCoCo (100% LINE, falla si baja)
 
 ## Ramificación
 
+| Modelo      | Funcionamiento                                                                                           |
+| GitFlow     | Utiliza `main`, `develop`, `feature/` y `hotfix/`, separando el código estable del código en desarrollo. |
+| GitHub Flow | Utiliza principalmente `main` y ramas de trabajo que se integran mediante Pull Request.                  |
+| Trunk-based | El trabajo se concentra en una rama principal, utilizando ramas de muy corta duración.                   |
+
 Elegimos GitFlow porque nos proporciona un mayor control sobre el código que pasa a producción. Además, este modelo se adapta de forma nativa a la estructura de ramas que solicita este proyecto (main, develop, feature, hotfix).
 
 
