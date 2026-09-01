@@ -124,6 +124,11 @@ Cada Pull Request debe ser revisado por el otro integrante del equipo antes de r
 
 El revisor debe comprobar los cambios realizados en la pestaña `Files changed` y puede aprobar, comentar o solicitar modificaciones antes de la integración.
 
-## Reflexiones
+## Conclusiones
+
+### Reflexiones
 
 Fernando Valenzuela: Esta evaluación me resulto util para entender el porque es necesario crear ramas en lugar de subir todo directo a main, hasta ahora siento que voy bien y no hay algo especifico que me cueste y la parte de que tengamos que aprobar los pull request del otro me parece que es algo que vamos a ver mucho al momento de trabajar en un proyecto real.
+
+Dacier Tapia: Esta evaluación me permitió comprender como funciona el desarrollo a través de las prácticas de devops, y algunas acciones utilizadas en las herramientas que utilizamos en la entrega, como lo son Git, Github y Visual Studio Code. Me pareció muy divertido e intrigante el uso de PRs con reviews asignadas a mi compañero, ya qué nos ayudaba a que ambos estuvieramos al tanto de los cambios realizados en el proyecto y a que nos pudieramos dar feedback y así poder ir mejorando nuestro trabajo de forma continua, ordenada y colaborativa.
+Y para cerrar, si bien siento que al ser una evaluación tenemos más presión, al desarrollar un proyecto o tarea en específico, se aprende más rápido y también con más ganas.
