@@ -1,0 +1,31 @@
+
+name: IE1 - Docker Build
+
+on:
+  push:
+    branches:
+      - develop
+      - "feature/**"
+
+  pull_request:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    name: Construcción de imagen Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Construir imagen Docker
+        run: docker build --pull --tag "cuentas-svc:${GITHUB_SHA}" .
+
+      - name: Verificar imagen construida
+        run: docker image inspect "cuentas-svc:${GITHUB_SHA}" > /dev/null
