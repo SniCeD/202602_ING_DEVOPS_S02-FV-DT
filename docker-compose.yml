@@ -6,3 +6,20 @@ services:
     ports:
       - "${PORT:-8080}:8080"
     restart: unless-stopped
+
+    # Limites de recursos del contenedor
+    cpus: "1.0"
+    mem_limit: 512m
+    mem_reservation: 128m
+    pids_limit: 200
+
+    # Recursos para plataformas compatibles con Deploy Specification
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+          pids: 200
+        reservations:
+          cpus: "0.25"
+          memory: 128M

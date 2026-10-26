@@ -77,6 +77,19 @@ No elimina ni corrige la vulnerabilidad. Se debe revisar
 antes de su vencimiento y retirar la excepción cuando sea
 posible resolver el problema de forma segura.
 
+## Límites de recursos y escalabilidad (IE3)
+
+Docker Compose define límites para controlar el consumo de
+recursos del microservicio:
+
+- CPU máxima: 1 núcleo equivalente.
+- Memoria máxima: 512 MiB.
+- Reserva flexible de memoria: 128 MiB.
+- Máximo de procesos e hilos: 200.
+
+Estos parámetros ayudan a evitar que el contenedor consuma
+recursos de forma ilimitada. Los valores son iniciales y deben
+validarse con pruebas de carga antes de usarse en producción.
 
 ## Cómo ejecutar localmente
 
