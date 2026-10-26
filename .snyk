@@ -1,0 +1,10 @@
+
+# Excepción temporal y documentada de Snyk.
+version: v1.25.0
+
+ignore:
+  SNYK-JAVA-ORGGLASSFISHJAXB-20883142:
+    - '*':
+        reason: "Excepcion temporal: Snyk indica que aun no existe una version corregida publicada. Mantener seguimiento, 
+        evaluar la exposición a XML no confiable y revisar al publicarse la correccion. No implica que la vulnerabilidad este corregida."
+        expires: '2026-11-25T23:59:59.999Z'
