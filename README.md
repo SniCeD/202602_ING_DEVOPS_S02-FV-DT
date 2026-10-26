@@ -5,7 +5,7 @@ Microservicio correspondiente al **caso caso04 — NovaBank** (Banca digital / f
 | | |
 |---|---|
 | Asignatura | JVY0101 — Java: Diseño y Construcción de Soluciones Nativas en Nube |
-| Stack | Spring Boot 3.3 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
+| Stack | Spring Boot 4.1.2 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
 | Calidad | JaCoCo cobertura LINE 100% · Cucumber (BDD) alineado a endpoints REST |
 | Entrega | Docker / Docker Compose |
 
@@ -43,6 +43,40 @@ La documentación completa está en la carpeta [`docs/`](docs/):
 - [`docs/04_Despliegue.md`](docs/04_Despliegue.md)
 - [`docs/05_Justificacion.md`](docs/05_Justificacion.md) — justificación del servicio: RF/RNF/seguridad cubiertos, stack y por qué cada tecnología AWS
 - [`docs/diagramas/`](docs/diagramas/) — C4 (contexto, contenedores, componentes), secuencia e infraestructura AWS — Docker, Docker Compose e integración
+
+
+## Seguridad del pipeline (IE3)
+
+## Dependabot
+Dependabot revisa semanalmente las dependencias Maven y las
+acciones de GitHub Actions, según la configuración de
+`.github/dependabot.yml`.
+
+### Análisis con Snyk
+El pipeline realiza dos análisis automáticos:
+- **Dependencias:** `snyk test --severity-threshold=high`
+- **Código:** `snyk code test --severity-threshold=high`
+
+El token de autenticación se almacena en el secreto
+`SNYK_TOKEN` de GitHub Actions.
+
+## Política de bloqueo
+El trabajo de construcción de Docker depende de las pruebas,
+el análisis de dependencias y el análisis estático de código.
+Si alguna de estas comprobaciones falla, la construcción de
+la imagen no se ejecuta y la ejecución del pipeline falla.
+
+## Excepción temporal de seguridad
+El archivo `.snyk` contiene una excepción temporal para
+`SNYK-JAVA-ORGGLASSFISHJAXB-20883142`, correspondiente a una
+vulnerabilidad XXE de JAXB que Snyk reporta sin una corrección
+disponible.
+
+La excepción tiene vencimiento el 25 de noviembre de 2026.
+No elimina ni corrige la vulnerabilidad. Se debe revisar
+antes de su vencimiento y retirar la excepción cuando sea
+posible resolver el problema de forma segura.
+
 
 ## Cómo ejecutar localmente
 
