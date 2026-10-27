@@ -1,6 +1,6 @@
 # Cuentas — Microservicio de riesgo cuentas
 
-Microservicio correspondiente al **caso caso04 — NovaBank** (Banca digital / fintech) de la Evaluación Parcial N°1.
+Microservicio correspondiente al **caso caso04 — NovaBank** (Banca digital / fintech), desarrollado inicialmente en la Evaluación Parcial N°1 y extendido para la Evaluación Parcial N°2.
 
 | | |
 |---|---|
@@ -91,17 +91,115 @@ Estos parámetros ayudan a evitar que el contenedor consuma
 recursos de forma ilimitada. Los valores son iniciales y deben
 validarse con pruebas de carga antes de usarse en producción.
 
+
+## Despliegue automático y trazabilidad (IE4)
+
+El pipeline de GitHub Actions incorpora un despliegue automático en un entorno simulado utilizando Docker Compose.
+
+El trabajo de despliegue depende de la ejecución correcta de:
+
+- Pruebas automatizadas y cobertura.
+- Análisis de dependencias con Snyk.
+- Análisis estático de código con Snyk Code.
+- Construcción de la imagen Docker.
+
+La imagen Docker se identifica utilizando el SHA del commit que originó la ejecución del pipeline.
+
+El formato utilizado es:
+
+duoc/jv0101-caso04-cuentas:<GITHUB_SHA>
+
+La imagen construida se exporta como artefacto dentro de GitHub Actions y posteriormente es recuperada por el trabajo de despliegue.
+
+Después de levantar el entorno se realizan verificaciones automáticas sobre:
+
+- Cantidad de réplicas levantadas.
+- Estado de salud de los contenedores.
+- Respuesta HTTP de las instancias.
+- Imagen Docker correspondiente al SHA del commit ejecutado.
+
+Al finalizar la validación, el entorno utilizado por el pipeline se elimina mediante Docker Compose.
+
+
+## Orquestación con Docker Compose (IE5)
+
+Docker Compose se utiliza para administrar la ejecución del microservicio en el entorno simulado.
+
+El servicio se configura con dos réplicas:
+
+deploy:
+  replicas: 2
+
+Cada réplica utiliza la misma imagen del microservicio y Docker asigna dinámicamente los puertos del host para evitar conflictos entre las instancias.
+
+La configuración también incluye:
+
+- Reinicio automático mediante restart: unless-stopped.
+- CPU máxima de 1 núcleo equivalente.
+- Memoria máxima de 512 MiB.
+- Reserva de memoria de 128 MiB.
+- Máximo de 200 procesos o hilos.
+- Healthcheck HTTP definido en el Dockerfile.
+
+El estado de las réplicas puede verificarse mediante:
+
+docker compose ps
+
+Para obtener el puerto asignado a cada réplica:
+
+docker compose port --index=1 cuentas-svc 8080
+docker compose port --index=2 cuentas-svc 8080
+
+
+## Pipeline CI/CD
+
+El workflow principal del proyecto se encuentra en:
+
+.github/workflows/pipeline.yml
+
+El pipeline contiene las siguientes etapas:
+
+- Ejecución de pruebas y verificación de cobertura.
+- Análisis de dependencias mediante Snyk.
+- Análisis estático de código mediante Snyk Code.
+- Construcción de la imagen Docker.
+- Exportación de la imagen como artefacto.
+- Despliegue automático mediante Docker Compose.
+- Verificación del estado de las réplicas.
+- Verificación HTTP posterior al despliegue.
+- Limpieza del entorno utilizado durante la ejecución.
+
+Los trabajos posteriores dependen del resultado correcto de las etapas anteriores. Si las pruebas o los análisis de seguridad fallan, la construcción y el despliegue no continúan.
+
+
+## Cómo ejecutar con Docker
+
+Para construir y levantar el servicio:
+
+docker compose up -d --build
+
+Para comprobar el estado de las réplicas:
+
+docker compose ps
+
+Docker Compose utiliza puertos dinámicos para las dos instancias.
+
+Para obtener los puertos asignados:
+
+docker compose port --index=1 cuentas-svc 8080
+docker compose port --index=2 cuentas-svc 8080
+
+Para detener y eliminar el entorno:
+
+docker compose down
+
+
+
+
 ## Cómo ejecutar localmente
 
 ```bash
 mvn spring-boot:run
-```
-
-## Cómo ejecutar con Docker
-
-```bash
-docker compose up --build
-# http://localhost:8080
 ```
 
 ## Cómo ejecutar las pruebas
@@ -173,9 +271,9 @@ El revisor debe comprobar los cambios realizados en la pestaña `Files changed` 
 
 ## Conclusiones
 
-### Reflexiones
+### Reflexiones (EP2)
 
 Fernando Valenzuela: Esta evaluación me resulto util para entender el porque es necesario crear ramas en lugar de subir todo directo a main, hasta ahora siento que voy bien y no hay algo especifico que me cueste y la parte de que tengamos que aprobar los pull request del otro me parece que es algo que vamos a ver mucho al momento de trabajar en un proyecto real.
 
-Dacier Tapia: Esta evaluación me permitió comprender como funciona el desarrollo a través de las prácticas de devops, y algunas acciones utilizadas en las herramientas que utilizamos en la entrega, como lo son Git, Github y Visual Studio Code. Me pareció muy divertido e intrigante el uso de PRs con reviews asignadas a mi compañero, ya qué nos ayudaba a que ambos estuvieramos al tanto de los cambios realizados en el proyecto y a que nos pudieramos dar feedback y así poder ir mejorando nuestro trabajo de forma continua, ordenada y colaborativa.
-Y para cerrar, si bien siento que al ser una evaluación tenemos más presión, al desarrollar un proyecto o tarea en específico, se aprende más rápido y también con más ganas.
+Dacier Tapia: Esta evaluación me permitió entender como funciona el despliegue CI/CD, con pruebas, seguridad, la construcción y el despliegue, dependiendo unas de otras. Además del uso de réplicas y healthchecks.
+Tuve problemas con el tema de los puertos ya que se sobreponían al ser estáticos, pero al no especificarlos, se volvieron dinámicos y funcionó todo bien.
