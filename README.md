@@ -44,6 +44,86 @@ La documentación completa está en la carpeta [`docs/`](docs/):
 - [`docs/05_Justificacion.md`](docs/05_Justificacion.md) — justificación del servicio: RF/RNF/seguridad cubiertos, stack y por qué cada tecnología AWS
 - [`docs/diagramas/`](docs/diagramas/) — C4 (contexto, contenedores, componentes), secuencia e infraestructura AWS — Docker, Docker Compose e integración
 
+## Contenedorización del microservicio (IE1)
+
+El microservicio se contiene mediante Docker utilizando un `Dockerfile` multi-stage, con el objetivo de separar el proceso de construcción de la aplicación de su entorno de ejecución y reducir el tamaño de la imagen final.
+
+### Construcción de la imagen
+
+El `Dockerfile` utiliza dos etapas:
+
+- **Etapa de construcción:** utiliza `maven:3.9-eclipse-temurin-21` para descargar las dependencias y generar el archivo JAR de la aplicación.
+- **Etapa de ejecución:** utiliza `eclipse-temurin:21-jre-alpine`, una imagen más ligera que incluye el entorno de ejecución de Java sin incorporar Maven ni todas las herramientas utilizadas durante la construcción.
+
+El artefacto JAR generado se copia desde la primera etapa a la imagen final, que expone el puerto `8080`.
+
+### Seguridad y optimización
+
+La imagen final incorpora las siguientes medidas:
+
+- Ejecución como usuario no privilegiado mediante la creación del usuario `appuser` y la instrucción `USER appuser`.
+- Uso de una imagen basada en Alpine con Java Runtime Environment (JRE), reduciendo los componentes incluidos en el entorno de ejecución.
+- Definición de un `HEALTHCHECK` HTTP que comprueba la disponibilidad del servicio mediante la ruta `/`.
+
+### Integración con el pipeline
+
+El workflow de GitHub Actions construye la imagen mediante el comando:
+
+```bash
+docker build --pull --tag "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" .
+```
+
+La construcción de la imagen depende de la aprobación previa de las pruebas automatizadas, el análisis de dependencias y el análisis estático de código. Posteriormente, el pipeline verifica que la imagen se haya generado correctamente mediante `docker image inspect` y la exporta como artefacto para utilizarla en el despliegue simulado.
+
+Archivos relacionados:
+
+- [`Dockerfile`](Dockerfile)
+- [`pipeline.yml`](.github/workflows/pipeline.yml)
+- [`docker-compose.yml`](docker-compose.yml)
+
+## Pruebas automatizadas y cobertura (IE2)
+
+El proyecto incorpora pruebas automatizadas para validar el comportamiento del microservicio de Cuentas, incluyendo la lógica de negocio, las respuestas HTTP y el funcionamiento de los endpoints REST.
+
+### Pruebas unitarias
+
+Las pruebas unitarias se organizan de la siguiente manera:
+
+- `CuentaServiceTest`: utiliza Mockito para comprobar las operaciones de listar, consultar, crear, actualizar y eliminar cuentas, incluyendo los casos en que el recurso existe o no existe.
+- `CuentaControllerTest`: utiliza MockMvc para verificar el comportamiento HTTP del controlador, incluyendo respuestas exitosas, errores de validación y recursos no encontrados.
+- `OpenApiConfigTest`: verifica la metadata de la configuración OpenAPI.
+
+### Pruebas de integración con Cucumber (BDD)
+
+El proyecto incorpora escenarios BDD con Cucumber que ejercitan los endpoints del microservicio mediante solicitudes HTTP.
+
+Los escenarios contemplan:
+
+1. Verificar que el listado de cuentas responda con código HTTP `200`.
+2. Ejecutar el ciclo de vida de una cuenta: creación (`201`), consulta (`200`), actualización (`200`), eliminación (`204`) y comprobación posterior de que el recurso eliminado responda con `404`.
+
+### Cobertura de código con JaCoCo
+
+El proyecto utiliza JaCoCo para medir la cobertura de líneas de código. La configuración documentada establece un objetivo del `100%` de cobertura de líneas y verifica este requisito durante la fase `verify` de Maven.
+
+### Integración con el pipeline
+
+El job de pruebas de GitHub Actions utiliza Java 21 y ejecuta el siguiente comando:
+
+```bash
+mvn --batch-mode --no-transfer-progress clean verify
+```
+
+El pipeline genera y publica el reporte de cobertura JaCoCo como artefacto de GitHub Actions con el nombre `reporte-cobertura-jacoco`.
+
+La construcción de la imagen Docker depende de que el job de pruebas termine correctamente. De esta manera, si las pruebas o la verificación de cobertura fallan, la construcción de la imagen no continúa.
+
+Archivos relacionados:
+
+- [`docs/03_Pruebas.md`](docs/03_Pruebas.md)
+- [`pom.xml`](pom.xml)
+- [`pipeline.yml`](.github/workflows/pipeline.yml)
+- [Ejecuciones de GitHub Actions](https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions)
 
 ## Seguridad del pipeline (IE3)
 
