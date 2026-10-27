@@ -273,7 +273,7 @@ El revisor debe comprobar los cambios realizados en la pestaña `Files changed` 
 
 ### Reflexiones (EP2)
 
-Fernando Valenzuela: Esta evaluación me resulto util para entender el porque es necesario crear ramas en lugar de subir todo directo a main, hasta ahora siento que voy bien y no hay algo especifico que me cueste y la parte de que tengamos que aprobar los pull request del otro me parece que es algo que vamos a ver mucho al momento de trabajar en un proyecto real.
+Fernando Valenzuela: Aprendí como configurar Snyk con actions para analizar vulnerabilidades, tuve que pelear con las vulnerabilidades que detecto el Snyk para mitigarlas pero al final se logró, aplicaría esto para el proyecto de portafolio de titulo que estamos haciendo, así nos va a quedar un proyecto mucho más profesional.
 
 Dacier Tapia: Esta evaluación me permitió entender como funciona el despliegue CI/CD, con pruebas, seguridad, la construcción y el despliegue, dependiendo unas de otras. Además del uso de réplicas y healthchecks.
 Tuve problemas con el tema de los puertos ya que se sobreponían al ser estáticos, pero al no especificarlos, se volvieron dinámicos y funcionó todo bien.
