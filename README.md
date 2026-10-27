@@ -269,6 +269,9 @@ Cada Pull Request debe ser revisado por el otro integrante del equipo antes de r
 
 El revisor debe comprobar los cambios realizados en la pestaña `Files changed` y puede aprobar, comentar o solicitar modificaciones antes de la integración.
 
+##Declaración de IA
+Se utilizó ChatGPT como apoyo para consultas técnicas, resolución de errores y organización de la documentación. Todo el contenido antes de ser lanzado fue revisado y validado por nosotros.
+
 ## Conclusiones
 
 ### Reflexiones (EP2)
