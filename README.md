@@ -4,8 +4,8 @@ Microservicio correspondiente al **caso caso04 — NovaBank** (Banca digital / f
 
 | | |
 |---|---|
-| Asignatura | JVY0101 — Java: Diseño y Construcción de Soluciones Nativas en Nube |
-| Stack | Spring Boot 4.1.2 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
+| Asignatura | DOY0101 — Ingeniería DevOps |
+| Stack | Spring Boot 4.1.3 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
 | Calidad | JaCoCo cobertura LINE 100% · Cucumber (BDD) alineado a endpoints REST |
 | Entrega | Docker / Docker Compose |
 
@@ -250,6 +250,155 @@ El pipeline contiene las siguientes etapas:
 - Limpieza del entorno utilizado durante la ejecución.
 
 Los trabajos posteriores dependen del resultado correcto de las etapas anteriores. Si las pruebas o los análisis de seguridad fallan, la construcción y el despliegue no continúan.
+
+
+## Evaluación Parcial 3 — Observabilidad y entornos reales
+
+La Evaluación Parcial N°3 extiende el pipeline y el microservicio implementados en las evaluaciones anteriores incorporando monitoreo, logging y observabilidad.
+
+### EP3 — IE1: Monitoreo y observabilidad
+
+El microservicio `cuentas-svc` incorpora una capa de observabilidad compuesta por **Spring Boot Actuator, Micrometer, Prometheus, Grafana Alloy, Loki y Grafana**.
+
+#### Métricas del microservicio
+
+Spring Boot Actuator y Micrometer exponen información de operación mediante los endpoints:
+
+```text
+/actuator/health
+/actuator/metrics
+/actuator/prometheus
+```
+
+Prometheus consulta automáticamente `/actuator/prometheus` cada 15 segundos y almacena las series temporales generadas por el microservicio.
+
+Entre las métricas verificadas se encuentran:
+
+- Uso de CPU del proceso Java.
+- Uso de memoria de la JVM.
+- Cantidad y duración de solicitudes HTTP.
+- Estados HTTP registrados.
+- Disponibilidad del microservicio.
+
+La disponibilidad también puede verificarse mediante la consulta PromQL:
+
+```promql
+up{job="cuentas-svc"}
+```
+
+Un valor `1` indica que Prometheus puede consultar correctamente el microservicio.
+
+#### Logging centralizado
+
+La aplicación genera sus logs en:
+
+```text
+logs/cuentas-svc.log
+```
+
+Grafana Alloy monitorea este archivo y envía los registros a Loki.
+
+Los logs almacenados en Loki pueden consultarse desde Grafana mediante LogQL, por ejemplo:
+
+```logql
+{job="cuentas-svc"}
+```
+
+Para filtrar errores:
+
+```logql
+{job="cuentas-svc"} |= "ERROR"
+```
+
+Y para filtrar advertencias:
+
+```logql
+{job="cuentas-svc"} |= "WARN"
+```
+
+Los archivos `.log` generados durante la ejecución están excluidos de Git mediante `.gitignore`.
+
+#### Validación de errores HTTP 5xx
+
+Se incorporó el endpoint técnico:
+
+```text
+GET /api/cuentas/observability/test-500
+```
+
+Este endpoint genera de forma controlada una respuesta:
+
+```text
+HTTP 500 Internal Server Error
+```
+
+Su objetivo es permitir verificar que los errores del servidor sean registrados por Micrometer y posteriormente recolectados por Prometheus.
+
+Los errores pueden consultarse mediante:
+
+```promql
+http_server_requests_seconds_count{status=~"5.."}
+```
+
+El endpoint cuenta además con una prueba automatizada en `CuentaControllerTest`.
+
+#### Stack de observabilidad
+
+La configuración está versionada en:
+
+```text
+monitoring/
+├── alloy/
+│   └── config.alloy
+├── grafana/
+│   └── provisioning/
+│       └── datasources/
+│           └── datasources.yml
+├── loki/
+│   └── loki-config.yml
+└── prometheus/
+    └── prometheus.yml
+```
+
+Los componentes de observabilidad se levantan mediante:
+
+```bash
+docker compose -f docker-compose.observability.yml up -d
+```
+
+Servicios locales:
+
+| Componente | Dirección |
+|---|---|
+| `cuentas-svc` | `http://localhost:8080` |
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` |
+| Loki | `http://localhost:3100` |
+| Alloy | `http://localhost:12345` |
+
+Para ejecutar el microservicio localmente:
+
+```bash
+mvn spring-boot:run
+```
+
+#### Señales verificadas
+
+| Señal | Implementación | Estado |
+|---|---|---|
+| Uso | CPU, memoria JVM y solicitudes HTTP mediante Micrometer/Prometheus | ✅ |
+| Disponibilidad | Actuator Health y métrica `up` de Prometheus | ✅ |
+| Errores | Métricas HTTP 5xx recolectadas por Prometheus | ✅ |
+| Logs | Archivo de aplicación → Alloy → Loki → Grafana | ✅ |
+
+#### Evidencias
+
+Las evidencias de la implementación se encuentran en:
+
+[`docs/evidencias/ep3/ie1/`](docs/evidencias/ep3/ie1/)
+
+Incluyen la validación del target `cuentas-svc` en Prometheus, métricas de uso, consulta de logs mediante Loki, registro de errores HTTP 500 y ejecución exitosa de las pruebas con JaCoCo.
+
 
 
 ## Cómo ejecutar con Docker
