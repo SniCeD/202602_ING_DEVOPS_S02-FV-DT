@@ -78,6 +78,14 @@ jobs:
   docker-build:
     name: Construcción de imagen Docker
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      GHCR_IMAGE: ghcr.io/sniced/202602_ing_devops_s02-fv-dt
+
     needs:
       - tests
       - security-dependencies
@@ -87,11 +95,35 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v7
 
+
+      - name: Iniciar sesión en GitHub Container Registry
+        if: github.event_name == 'push'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+            -u "${{ github.actor }}" \
+            --password-stdin
+
       - name: Construir imagen Docker
         run: docker build --pull --tag "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" .
 
       - name: Verificar imagen construida
         run: docker image inspect "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" > /dev/null
+
+
+      - name: Etiquetar imagen para GHCR
+        if: github.event_name == 'push'
+        run: |
+          docker tag \
+            "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" \
+            "${GHCR_IMAGE}:${GITHUB_SHA}"
+
+
+      - name: Publicar imagen en GHCR
+        if: github.event_name == 'push'
+        run: |
+          docker push "${GHCR_IMAGE}:${GITHUB_SHA}"
+
+
       - name: Exportar imagen Docker
         run: docker save "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" -o cuentas-svc.tar
 
@@ -129,6 +161,7 @@ jobs:
       - name: Desplegar con Docker Compose
         run: docker compose up -d --no-build --wait --wait-timeout 120
 
+
       - name: Mostrar estado del despliegue
         run: docker compose ps
 
@@ -136,14 +169,18 @@ jobs:
         shell: bash
         run: |
           containers=$(docker compose ps -q cuentas-svc)
+
           count=$(echo "$containers" | wc -w)
 
           echo "Replicas detectadas: $count"
+
           test "$count" -eq 2
 
           for container in $containers; do
             status=$(docker inspect --format='{{.State.Health.Status}}' "$container")
+
             echo "$container -> $status"
+
             test "$status" = "healthy"
           done
 
@@ -151,15 +188,21 @@ jobs:
         shell: bash
         run: |
           for i in 1 2; do
+
             port=$(docker compose port --index=$i cuentas-svc 8080 | awk -F: '{print $NF}')
+
             echo "Replica $i -> localhost:$port"
+
             curl --fail --retry 5 --retry-delay 2 "http://localhost:${port}/"
           done
 
       - name: Evidencia de trazabilidad
         run: |
           echo "Commit desplegado: ${GITHUB_SHA}"
+
+          # Verifica que la imagen usada corresponda al commit actual.
           docker image inspect "duoc/jv0101-caso04-cuentas:${GITHUB_SHA}" > /dev/null
+
           echo "Imagen desplegada: duoc/jv0101-caso04-cuentas:${GITHUB_SHA}"
 
       - name: Limpiar entorno
