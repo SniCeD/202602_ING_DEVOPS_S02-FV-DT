@@ -110,6 +110,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_CONFIG: .gitleaks.toml
   docker-build:
     name: Construcción de imagen Docker
     runs-on: ubuntu-latest
