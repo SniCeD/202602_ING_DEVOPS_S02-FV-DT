@@ -122,4 +122,18 @@ class CuentaControllerTest {
         when(service.delete(1L)).thenReturn(false);
         mockMvc.perform(delete("/api/cuentas/1")).andExpect(status().isNotFound());
     }
+
+
+    @Test
+    void observabilidadDevuelve500() throws Exception {
+
+            mockMvc.perform(
+                    get("/api/cuentas/observability/test-500")
+                )
+
+                .andExpect(
+                    status().isInternalServerError()
+                );
+}
+
 }

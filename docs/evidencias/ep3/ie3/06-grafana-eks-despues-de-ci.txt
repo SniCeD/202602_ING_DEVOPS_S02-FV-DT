@@ -1,0 +1,15 @@
+﻿UTC: 2026-11-23T00:11:19.2839337Z
+SHA: bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d
+Grafana via Prometheus. Tiempo y cobertura coinciden con ci-metrics.prom del job deploy-kubernetes.
+Trafico controlado por replica: 20 respuestas HTTP 200 y 20 HTTP 500.
+cuentas-svc | http://172.31.81.60:8080/actuator/prometheus | health=up
+cuentas-svc | http://172.31.91.4:8080/actuator/prometheus | health=up
+pushgateway | http://pushgateway:9091/metrics | health=up
+novabank_ci_deploy_duration_seconds{job="novabank-ci"} | valor=66 | epoch=1795392675.906
+novabank_ci_line_coverage_percent{job="novabank-ci"} | valor=100 | epoch=1795392676.349
+sum(jvm_memory_used_bytes{job="cuentas-svc"}) | valor=321443256 | epoch=1795392676.791
+avg(process_cpu_usage{job="cuentas-svc"}) | valor=0.02903703703703704 | epoch=1795392677.233
+sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*",status=~"5.."}[2m])) | valor=0.33621333333333336 | epoch=1795392677.671
+sum(rate(logback_events_total{job="cuentas-svc",level="error"}[2m])) | valor=0 | epoch=1795392678.119
+sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*"}[2m])) | valor=0.7015235714285715 | epoch=1795392678.554
+histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="cuentas-svc",uri!~"/actuator.*"}[2m]))) | valor=0.005524852642337024 | epoch=1795392679.007

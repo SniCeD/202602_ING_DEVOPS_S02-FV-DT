@@ -1,0 +1,61 @@
+services:
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    container_name: ep3-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.7.0
+    container_name: ep3-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.22.0
+    container_name: ep3-alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ./logs:/var/log/cuentas:ro
+      - alloy-data:/var/lib/alloy/data
+    command:
+      - run
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy/data"
+      - "/etc/alloy/config.alloy"
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.3.1
+    container_name: ep3-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
+  alloy-data:

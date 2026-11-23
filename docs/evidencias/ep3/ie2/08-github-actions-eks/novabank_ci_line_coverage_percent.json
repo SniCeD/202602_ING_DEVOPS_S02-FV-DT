@@ -1,0 +1,1 @@
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"novabank_ci_line_coverage_percent","job":"novabank-ci"},"value":[1795392554.234,"100"]}]}}

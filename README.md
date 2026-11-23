@@ -4,8 +4,8 @@ Microservicio correspondiente al **caso caso04 — NovaBank** (Banca digital / f
 
 | | |
 |---|---|
-| Asignatura | JVY0101 — Java: Diseño y Construcción de Soluciones Nativas en Nube |
-| Stack | Spring Boot 4.1.2 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
+| Asignatura | DOY0101 — Ingeniería DevOps |
+| Stack | Spring Boot 4.1.3 · Java 21 · Maven · Spring Data JPA · H2 · springdoc-openapi |
 | Calidad | JaCoCo cobertura LINE 100% · Cucumber (BDD) alineado a endpoints REST |
 | Entrega | Docker / Docker Compose |
 
@@ -250,6 +250,204 @@ El pipeline contiene las siguientes etapas:
 - Limpieza del entorno utilizado durante la ejecución.
 
 Los trabajos posteriores dependen del resultado correcto de las etapas anteriores. Si las pruebas o los análisis de seguridad fallan, la construcción y el despliegue no continúan.
+
+
+## Evaluación Parcial 3 — Observabilidad y entornos reales
+
+La Evaluación Parcial N°3 extiende el pipeline y el microservicio implementados en las evaluaciones anteriores incorporando monitoreo, logging y observabilidad.
+
+### EP3 — IE1: Monitoreo y observabilidad
+
+El microservicio `cuentas-svc` incorpora una capa de observabilidad compuesta por **Spring Boot Actuator, Micrometer, Prometheus, Grafana Alloy, Loki y Grafana**.
+
+#### Métricas del microservicio
+
+Spring Boot Actuator y Micrometer exponen información de operación mediante los endpoints:
+
+```text
+/actuator/health
+/actuator/metrics
+/actuator/prometheus
+```
+
+Prometheus consulta automáticamente `/actuator/prometheus` cada 15 segundos y almacena las series temporales generadas por el microservicio.
+
+Entre las métricas verificadas se encuentran:
+
+- Uso de CPU del proceso Java.
+- Uso de memoria de la JVM.
+- Cantidad y duración de solicitudes HTTP.
+- Estados HTTP registrados.
+- Disponibilidad del microservicio.
+
+La disponibilidad también puede verificarse mediante la consulta PromQL:
+
+```promql
+up{job="cuentas-svc"}
+```
+
+Un valor `1` indica que Prometheus puede consultar correctamente el microservicio.
+
+#### Logging centralizado
+
+La aplicación genera sus logs en:
+
+```text
+logs/cuentas-svc.log
+```
+
+Grafana Alloy monitorea este archivo y envía los registros a Loki.
+
+Los logs almacenados en Loki pueden consultarse desde Grafana mediante LogQL, por ejemplo:
+
+```logql
+{job="cuentas-svc"}
+```
+
+Para filtrar errores:
+
+```logql
+{job="cuentas-svc"} |= "ERROR"
+```
+
+Y para filtrar advertencias:
+
+```logql
+{job="cuentas-svc"} |= "WARN"
+```
+
+Los archivos `.log` generados durante la ejecución están excluidos de Git mediante `.gitignore`.
+
+#### Validación de errores HTTP 5xx
+
+Se incorporó el endpoint técnico:
+
+```text
+GET /api/cuentas/observability/test-500
+```
+
+Este endpoint genera de forma controlada una respuesta:
+
+```text
+HTTP 500 Internal Server Error
+```
+
+Su objetivo es permitir verificar que los errores del servidor sean registrados por Micrometer y posteriormente recolectados por Prometheus.
+
+Los errores pueden consultarse mediante:
+
+```promql
+http_server_requests_seconds_count{status=~"5.."}
+```
+
+El endpoint cuenta además con una prueba automatizada en `CuentaControllerTest`.
+
+#### Stack de observabilidad
+
+La configuración está versionada en:
+
+```text
+monitoring/
+├── alloy/
+│   └── config.alloy
+├── grafana/
+│   └── provisioning/
+│       └── datasources/
+│           └── datasources.yml
+├── loki/
+│   └── loki-config.yml
+└── prometheus/
+    └── prometheus.yml
+```
+
+Los componentes de observabilidad se levantan mediante:
+
+```bash
+docker compose -f docker-compose.observability.yml up -d
+```
+
+Servicios locales:
+
+| Componente | Dirección |
+|---|---|
+| `cuentas-svc` | `http://localhost:8080` |
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` |
+| Loki | `http://localhost:3100` |
+| Alloy | `http://localhost:12345` |
+
+Para ejecutar el microservicio localmente:
+
+```bash
+mvn spring-boot:run
+```
+
+#### Señales verificadas
+
+| Señal | Implementación | Estado |
+|---|---|---|
+| Uso | CPU, memoria JVM y solicitudes HTTP mediante Micrometer/Prometheus | ✅ |
+| Disponibilidad | Actuator Health y métrica `up` de Prometheus | ✅ |
+| Errores | Métricas HTTP 5xx recolectadas por Prometheus | ✅ |
+| Logs | Archivo de aplicación → Alloy → Loki → Grafana | ✅ |
+
+#### Evidencias
+
+Las evidencias de la implementación se encuentran en:
+
+[`docs/evidencias/ep3/ie1/`](docs/evidencias/ep3/ie1/)
+
+Incluyen la validación del target `cuentas-svc` en Prometheus, métricas de uso, consulta de logs mediante Loki, registro de errores HTTP 500 y ejecución exitosa de las pruebas con JaCoCo.
+
+### EP3 — IE2 e IE3 en Amazon EKS
+
+El entorno de prueba se validó en EKS 1.36 con soporte estándar en `us-east-1` y un grupo administrado de un nodo `t3.medium`. Cuentas tiene dos réplicas y sondas de Actuator. Prometheus descubre cada réplica mediante el Service headless `cuentas-metrics`. Grafana provisiona **NovaBank · Cuentas** desde el repositorio.
+
+#### Despliegue desde GitHub Actions
+
+`deploy-kubernetes` se ejecuta en un push a la rama configurada tras las pruebas, los dos análisis de Snyk y la publicación de la imagen del mismo SHA. GitHub usa las variables de repositorio `EKS_DEPLOY_BRANCH` (`feature/ep3-ie1-ie3-observability`) y `EKS_CLUSTER_NAME` (`novabank-ep3`). La ejecución de prueba usó los secretos de repositorio `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `AWS_REGION` (`us-east-1`). Renueva los tres valores de la sesión de AWS Academy cuando caduquen. La sesión debe poder describir el clúster y su principal IAM debe tener acceso Kubernetes para desplegar y verificar en `ep3`, crear ese namespace y usar `port-forward`. El runner debe alcanzar la API de EKS.
+
+El job valida las dos réplicas del SHA, el Service, sus endpoints y las sondas de cada pod. Después aplica Prometheus, Grafana y Pushgateway. Publica los datos a través de un `kubectl port-forward` a Pushgateway, un Service interno. El artefacto `ep3-eks-<sha>-<intento>` guarda el registro, las imágenes y digests de las réplicas, los endpoints, las métricas enviadas y las respuestas consultadas a través de Grafana. Encontrarás la cobertura en `ci-metrics.prom` y la duración medida junto a ella.
+
+#### Reproducción manual
+
+Con acceso al clúster, ejecuta desde la raíz del repositorio en Bash con AWS CLI, `kubectl`, `curl`, `jq` y Python 3. Usa un SHA publicado y el reporte JaCoCo correspondiente a ese mismo commit. El script mide el despliegue que ejecuta y conserva el resultado en el directorio de evidencia.
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name novabank-ep3
+kubectl get nodes
+IMAGE_TAG='<sha-publicado>' bash scripts/ep3/deploy-kubernetes.sh /ruta/a/jacoco.xml /ruta/a/evidencia
+```
+
+Abre tres terminales para reenviar los puertos al equipo local.
+
+```bash
+kubectl -n ep3 port-forward svc/cuentas-svc 18080:80
+kubectl -n ep3 port-forward svc/prometheus 19090:9090
+kubectl -n ep3 port-forward svc/grafana 13000:3000
+```
+
+Comprueba `/actuator/health/liveness` y `/actuator/health/readiness` en el puerto 18080. Para poblar ambas réplicas, reenvía por separado el puerto 8080 de cada pod y envía solicitudes a `/` y, en intervalos controlados, a `/api/cuentas/observability/test-500`. Comprueba que `/actuator/prometheus` emita `http_server_requests_seconds_bucket` después de las solicitudes. Verifica los dos targets en `http://localhost:19090/targets` y abre `http://localhost:13000/d/novabank-cuentas`.
+
+#### Métricas de la pauta
+
+La duración se mide en segundos desde la primera aplicación de los manifiestos de Cuentas hasta validar el rollout, el Service y las sondas. La cobertura usa el contador global de líneas de `jacoco.xml` de la misma ejecución, con la fórmula `100 × cubiertas / (cubiertas + omitidas)`. Cada despliegue validado reemplaza la última pareja de valores en Pushgateway. Prometheus conserva las muestras de la sesión de prueba. El almacenamiento en este laboratorio es efímero.
+
+| Panel | PromQL |
+|---|---|
+| Tiempo de despliegue en EKS | `novabank_ci_deploy_duration_seconds{job="novabank-ci"}` |
+| Cobertura de pruebas JaCoCo | `novabank_ci_line_coverage_percent{job="novabank-ci"}` |
+| CPU media del microservicio | `avg(process_cpu_usage{job="cuentas-svc"})` |
+| Memoria JVM total en bytes | `sum(jvm_memory_used_bytes{job="cuentas-svc"})` |
+| Errores registrados por segundo | `sum(rate(logback_events_total{job="cuentas-svc",level="error"}[2m]))` |
+| Respuestas HTTP 5xx por segundo | `sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*",status=~"5.."}[2m]))` |
+| Solicitudes por segundo | `sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*"}[2m]))` |
+| Latencia p95 en segundos | `histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="cuentas-svc",uri!~"/actuator.*"}[2m])))` |
+
+La [ejecución 45086754091](https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions/runs/45086754091) verificó el despliegue automático del SHA `bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d`. Sus artefactos registraron **66 segundos** de despliegue y **100%** de cobertura JaCoCo de líneas (46 cubiertas y 0 omitidas). Las [evidencias de IE2](docs/evidencias/ep3/ie2/) y [evidencias de IE3](docs/evidencias/ep3/ie3/) incluyen las comprobaciones en EKS y conservan la validación manual anterior. El despliegue simulado de Compose sigue disponible.
+
+El entorno EKS se conserva operativo para revisar las evidencias y volver a ejecutar las pruebas. La retirada del entorno requiere autorización expresa.
+
 
 
 ## Cómo ejecutar con Docker

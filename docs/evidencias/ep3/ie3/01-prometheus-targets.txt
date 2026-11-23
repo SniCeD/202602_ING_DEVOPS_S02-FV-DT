@@ -1,0 +1,3 @@
+﻿UTC: 2026-11-22T23:13:58.1967143Z
+http://172.31.7.60:8080/actuator/prometheus | health=up | lastScrape=2026-11-22T23:13:57.513020372Z | lastError=
+http://172.31.1.26:8080/actuator/prometheus | health=up | lastScrape=2026-11-22T23:13:51.715111666Z | lastError=

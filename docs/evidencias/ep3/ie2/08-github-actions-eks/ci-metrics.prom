@@ -1,0 +1,6 @@
+# HELP novabank_ci_line_coverage_percent JaCoCo line coverage from this CI run.
+# TYPE novabank_ci_line_coverage_percent gauge
+novabank_ci_line_coverage_percent 100
+# HELP novabank_ci_deploy_duration_seconds Time from apply to verified Cuentas rollout.
+# TYPE novabank_ci_deploy_duration_seconds gauge
+novabank_ci_deploy_duration_seconds 66

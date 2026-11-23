@@ -1,0 +1,13 @@
+﻿UTC: 2026-11-22T23:11:32.0634865Z
+deployment "cuentas-svc" successfully rolled out
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cuentas-svc   2/2     2            2           72s
+
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/cuentas-svc-6bb6c448df-5ddmj   1/1     Running   0          72s
+pod/cuentas-svc-6bb6c448df-mhnzg   1/1     Running   0          72s
+
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/cuentas-svc   ClusterIP   10.100.164.12   <none>        80/TCP    76s
+cuentas-svc-6bb6c448df-5ddmj | ghcr.io/sniced/202602_ing_devops_s02-fv-dt:7ad26ce436f0623d133db5f2a7938e5b201c9ed2 | ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:95e814a9bc410e00dc4a1f6f0869711f5922c99ee537073ab6edec55435d852c | Ready=True
+cuentas-svc-6bb6c448df-mhnzg | ghcr.io/sniced/202602_ing_devops_s02-fv-dt:7ad26ce436f0623d133db5f2a7938e5b201c9ed2 | ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:95e814a9bc410e00dc4a1f6f0869711f5922c99ee537073ab6edec55435d852c | Ready=True

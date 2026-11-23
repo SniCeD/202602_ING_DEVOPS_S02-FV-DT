@@ -1,0 +1,6 @@
+﻿UTC: 2026-11-22T23:13:59.2263248Z
+Dashboard: NovaBank · Cuentas (novabank-cuentas)
+Solicitudes HTTP | sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*"}[2m])) | Unix UTC=1795389238.524 | valor=0.5967127777777778
+Errores HTTP 5xx | sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*",status=~"5.."}[2m])) | Unix UTC=1795389238.671 | valor=0.09617444444444445
+Latencia HTTP p95 | histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="cuentas-svc",uri!~"/actuator.*"}[2m]))) | Unix UTC=1795389238.809 | valor=0.008902669076825572
+Memoria JVM utilizada | sum(jvm_memory_used_bytes{job="cuentas-svc"}) | Unix UTC=1795389238.945 | valor=322038736
