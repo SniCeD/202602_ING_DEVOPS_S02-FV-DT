@@ -1,0 +1,52 @@
+{
+    "Date":  "2026-11-23T14:06:10.9993678-03:00",
+    "Runtime":  "Docker maven:3.9-eclipse-temurin-21",
+    "BuildResult":  "BUILD SUCCESS",
+    "Tests":  {
+                  "Suites":  [
+                                 {
+                                     "Suite":  "cl.duoc.jv0101.caso04.cuentas.cucumber.CucumberRunnerTest",
+                                     "Tests":  2,
+                                     "Failures":  0,
+                                     "Errors":  0,
+                                     "Skipped":  0,
+                                     "Time":  10.149
+                                 },
+                                 {
+                                     "Suite":  "cl.duoc.jv0101.caso04.cuentas.CuentaControllerTest",
+                                     "Tests":  10,
+                                     "Failures":  0,
+                                     "Errors":  0,
+                                     "Skipped":  0,
+                                     "Time":  40.842
+                                 },
+                                 {
+                                     "Suite":  "cl.duoc.jv0101.caso04.cuentas.CuentaServiceTest",
+                                     "Tests":  8,
+                                     "Failures":  0,
+                                     "Errors":  0,
+                                     "Skipped":  0,
+                                     "Time":  1.409
+                                 },
+                                 {
+                                     "Suite":  "cl.duoc.jv0101.caso04.cuentas.OpenApiConfigTest",
+                                     "Tests":  1,
+                                     "Failures":  0,
+                                     "Errors":  0,
+                                     "Skipped":  0,
+                                     "Time":  0.003
+                                 }
+                             ],
+                  "Total":  21,
+                  "Failures":  0,
+                  "Errors":  0,
+                  "Skipped":  0
+              },
+    "JaCoCo":  {
+                   "CoveredLines":  46,
+                   "MissedLines":  0,
+                   "CoveragePercent":  100,
+                   "ThresholdCheck":  "All coverage checks met",
+                   "Report":  "target/site/jacoco/jacoco.xml"
+               }
+}

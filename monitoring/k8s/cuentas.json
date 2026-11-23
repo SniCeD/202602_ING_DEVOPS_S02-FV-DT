@@ -1,233 +1,355 @@
 {
-  "uid": "novabank-cuentas",
-  "title": "NovaBank · Cuentas",
-  "schemaVersion": 39,
-  "refresh": "15s",
-  "time": {
-    "from": "now-15m",
-    "to": "now"
-  },
-  "panels": [
-    {
-      "id": 5,
-      "type": "stat",
-      "title": "Tiempo de despliegue en EKS",
-      "description": "Desde el inicio de apply de Cuentas hasta verificar el rollout, el Service y las sondas.",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "graphMode": "none",
-        "colorMode": "none"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "instant": true,
-          "range": false,
-          "expr": "novabank_ci_deploy_duration_seconds{job=\"novabank-ci\"}"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "stat",
-      "title": "Cobertura de pruebas · JaCoCo",
-      "description": "Porcentaje de líneas cubiertas según el reporte de la ejecución que desplegó.",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "graphMode": "none",
-        "colorMode": "none"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "instant": true,
-          "range": false,
-          "expr": "novabank_ci_line_coverage_percent{job=\"novabank-ci\"}"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "type": "timeseries",
-      "title": "Uso de CPU y memoria JVM",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPU del proceso"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percentunit"
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(jvm_memory_used_bytes{job=\"cuentas-svc\"})",
-          "legendFormat": "Memoria JVM"
-        },
-        {
-          "refId": "B",
-          "legendFormat": "CPU del proceso",
-          "expr": "avg(process_cpu_usage{job=\"cuentas-svc\"})"
-        }
-      ],
-      "description": "CPU media de los procesos de Cuentas y memoria JVM total de las réplicas."
-    },
-    {
-      "id": 2,
-      "type": "timeseries",
-      "title": "Errores registrados y HTTP 5xx",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\",status=~\"5..\"}[2m]))",
-          "legendFormat": "HTTP 5xx/s"
-        },
-        {
-          "refId": "B",
-          "legendFormat": "Logs ERROR/s",
-          "expr": "sum(rate(logback_events_total{job=\"cuentas-svc\",level=\"error\"}[2m]))"
-        }
-      ],
-      "description": "Tasa de eventos ERROR de Logback y de respuestas HTTP 5xx. Son señales distintas y pueden coincidir."
-    },
-    {
-      "id": 1,
-      "type": "timeseries",
-      "title": "Solicitudes HTTP",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[2m]))"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "type": "timeseries",
-      "title": "Latencia HTTP p95",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[2m])))"
-        }
-      ]
-    }
-  ]
+    "uid":  "novabank-cuentas",
+    "title":  "NovaBank · Cuentas",
+    "schemaVersion":  39,
+    "refresh":  "15s",
+    "time":  {
+                 "from":  "now-15m",
+                 "to":  "now"
+             },
+    "panels":  [
+                   {
+                       "id":  5,
+                       "type":  "stat",
+                       "title":  "Tiempo de despliegue en EKS",
+                       "description":  "Desde el inicio de apply de Cuentas hasta verificar el rollout, el Service y las sondas.",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  0
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "options":  {
+                                       "reduceOptions":  {
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  "",
+                                                             "values":  false
+                                                         },
+                                       "graphMode":  "none",
+                                       "colorMode":  "none"
+                                   },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "instant":  true,
+                                           "range":  false,
+                                           "expr":  "novabank_ci_deploy_duration_seconds{job=\"novabank-ci\"}"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  6,
+                       "type":  "stat",
+                       "title":  "Cobertura de pruebas · JaCoCo",
+                       "description":  "Porcentaje de líneas cubiertas según el reporte de la ejecución que desplegó.",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  0
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percent"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "options":  {
+                                       "reduceOptions":  {
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  "",
+                                                             "values":  false
+                                                         },
+                                       "graphMode":  "none",
+                                       "colorMode":  "none"
+                                   },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "instant":  true,
+                                           "range":  false,
+                                           "expr":  "novabank_ci_line_coverage_percent{job=\"novabank-ci\"}"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  4,
+                       "type":  "timeseries",
+                       "title":  "Uso de CPU y memoria JVM",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "bytes"
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "CPU del proceso"
+                                                                             },
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "unit",
+                                                                                        "value":  "percentunit"
+                                                                                    },
+                                                                                    {
+                                                                                        "id":  "custom.axisPlacement",
+                                                                                        "value":  "right"
+                                                                                    }
+                                                                                ]
+                                                             }
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "expr":  "sum(jvm_memory_used_bytes{job=\"cuentas-svc\"})",
+                                           "legendFormat":  "Memoria JVM"
+                                       },
+                                       {
+                                           "refId":  "B",
+                                           "legendFormat":  "CPU del proceso",
+                                           "expr":  "avg(process_cpu_usage{job=\"cuentas-svc\"})"
+                                       }
+                                   ],
+                       "description":  "CPU media de los procesos de Cuentas y memoria JVM total de las réplicas."
+                   },
+                   {
+                       "id":  2,
+                       "type":  "timeseries",
+                       "title":  "Errores registrados y HTTP 5xx",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "ops"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "expr":  "sum(rate(http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\",status=~\"5..\"}[2m]))",
+                                           "legendFormat":  "HTTP 5xx/s"
+                                       },
+                                       {
+                                           "refId":  "B",
+                                           "legendFormat":  "Logs ERROR/s",
+                                           "expr":  "sum(rate(logback_events_total{job=\"cuentas-svc\",level=\"error\"}[2m]))"
+                                       }
+                                   ],
+                       "description":  "Tasa de eventos ERROR de Logback y de respuestas HTTP 5xx. Son señales distintas y pueden coincidir."
+                   },
+                   {
+                       "id":  1,
+                       "type":  "timeseries",
+                       "title":  "Solicitudes HTTP",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  16
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "expr":  "sum(rate(http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[2m]))"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  3,
+                       "type":  "timeseries",
+                       "title":  "Latencia HTTP p95",
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  16
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "refId":  "A",
+                                           "expr":  "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[2m])))"
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  7,
+                       "type":  "timeseries",
+                       "title":  "CPU de contenedores (cgroup)",
+                       "description":  "Consumo de CPU por pod y nodo, recolectado desde cAdvisor mediante las métricas de Kubernetes.",
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "min":  0,
+                                                            "unit":  "cores"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "showLegend":  true,
+                                                      "calcs":  [
+
+                                                                ],
+                                                      "displayMode":  "table"
+                                                  },
+                                       "tooltip":  {
+                                                       "sort":  "desc",
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum by (pod, node) (rate(container_cpu_usage_seconds_total{namespace=\"ep3\",container!=\"\",pod!=\"\"}[2m]))",
+                                           "editorMode":  "code",
+                                           "instant":  false,
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "prometheus"
+                                                          },
+                                           "refId":  "A",
+                                           "legendFormat":  "{{pod}} / {{node}}",
+                                           "range":  true
+                                       }
+                                   ]
+                   },
+                   {
+                       "id":  8,
+                       "type":  "timeseries",
+                       "title":  "Memoria de contenedores (cgroup)",
+                       "description":  "Memoria working set utilizada por pod y nodo, recolectada desde cAdvisor. Los valores se presentan en bytes.",
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "min":  0,
+                                                            "unit":  "bytes"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "showLegend":  true,
+                                                      "calcs":  [
+
+                                                                ],
+                                                      "displayMode":  "table"
+                                                  },
+                                       "tooltip":  {
+                                                       "sort":  "desc",
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum by (pod, node) (container_memory_working_set_bytes{namespace=\"ep3\",container!=\"\",pod!=\"\"})",
+                                           "editorMode":  "code",
+                                           "instant":  false,
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "prometheus"
+                                                          },
+                                           "refId":  "A",
+                                           "legendFormat":  "{{pod}} / {{node}}",
+                                           "range":  true
+                                       }
+                                   ]
+                   }
+               ]
 }

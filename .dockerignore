@@ -3,3 +3,17 @@ target/
 .idea/
 .vscode/
 *.iml
+
+# Archivos y directorios que no deben entrar al contexto Docker
+.git/
+.github/
+.env
+.env.*
+*.env
+secrets/
+**/secrets/
+*.key
+*.p12
+*.pfx
+kubeconfig
+kubeconfig.*

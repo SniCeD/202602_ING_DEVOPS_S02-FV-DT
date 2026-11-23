@@ -1,0 +1,14 @@
+{
+    "Date":  "2026-11-23T14:14:00.0875912-03:00",
+    "Tool":  "Trivy",
+    "Image":  "duoc/jv0101-caso04-cuentas:ep3-ie5-histogram-20261123-134647",
+    "ExitCode":  0,
+    "SeverityThreshold":  "CRITICAL",
+    "IgnoreUnfixed":  false,
+    "CriticalVulnerabilities":  0,
+    "Result":  "No critical vulnerabilities detected",
+    "Findings":  [
+
+                 ],
+    "Report":  "05-trivy-image.json"
+}

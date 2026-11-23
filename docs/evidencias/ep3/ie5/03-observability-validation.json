@@ -1,0 +1,122 @@
+{
+    "Date":  "2026-11-23T13:58:18.4108363-03:00",
+    "DockerImage":  "ep3-ie5-histogram-20261123-134647",
+    "PrometheusTargets":  [
+                              {
+                                  "URL":  "http://172.18.0.2:8080/actuator/prometheus",
+                                  "Health":  "up",
+                                  "Error":  ""
+                              },
+                              {
+                                  "URL":  "http://172.18.0.3:8080/actuator/prometheus",
+                                  "Health":  "up",
+                                  "Error":  ""
+                              }
+                          ],
+    "PrometheusMetrics":  [
+                              {
+                                  "Metric":  "Replicas UP",
+                                  "Query":  "count(up{job=\"cuentas-svc\"} == 1)",
+                                  "Instance":  null,
+                                  "Value":  "2"
+                              },
+                              {
+                                  "Metric":  "Histogramas HTTP",
+                                  "Query":  "count by (instance) (http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"})",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "69"
+                              },
+                              {
+                                  "Metric":  "Histogramas HTTP",
+                                  "Query":  "count by (instance) (http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"})",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "69"
+                              },
+                              {
+                                  "Metric":  "Latencia p95",
+                                  "Query":  "histogram_quantile(0.95, sum by (le, instance) (rate(http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[5m])))",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "0.011534334249999998"
+                              },
+                              {
+                                  "Metric":  "Latencia p95",
+                                  "Query":  "histogram_quantile(0.95, sum by (le, instance) (rate(http_server_requests_seconds_bucket{job=\"cuentas-svc\",uri!~\"/actuator.*\"}[5m])))",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "0.018175317249999996"
+                              },
+                              {
+                                  "Metric":  "Memoria JVM",
+                                  "Query":  "count by (instance) (jvm_memory_used_bytes{job=\"cuentas-svc\"})",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "8"
+                              },
+                              {
+                                  "Metric":  "Memoria JVM",
+                                  "Query":  "count by (instance) (jvm_memory_used_bytes{job=\"cuentas-svc\"})",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "8"
+                              },
+                              {
+                                  "Metric":  "CPU proceso",
+                                  "Query":  "process_cpu_usage{job=\"cuentas-svc\"}",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "0.04285714285714286"
+                              },
+                              {
+                                  "Metric":  "CPU proceso",
+                                  "Query":  "process_cpu_usage{job=\"cuentas-svc\"}",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "0.03414634146341464"
+                              },
+                              {
+                                  "Metric":  "Solicitudes HTTP",
+                                  "Query":  "http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\"}",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "37"
+                              },
+                              {
+                                  "Metric":  "Solicitudes HTTP",
+                                  "Query":  "http_server_requests_seconds_count{job=\"cuentas-svc\",uri!~\"/actuator.*\"}",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "37"
+                              },
+                              {
+                                  "Metric":  "Eventos Logback",
+                                  "Query":  "count by (instance) (logback_events_total{job=\"cuentas-svc\"})",
+                                  "Instance":  "172.18.0.3:8080",
+                                  "Value":  "5"
+                              },
+                              {
+                                  "Metric":  "Eventos Logback",
+                                  "Query":  "count by (instance) (logback_events_total{job=\"cuentas-svc\"})",
+                                  "Instance":  "172.18.0.2:8080",
+                                  "Value":  "5"
+                              }
+                          ],
+    "LokiIngestion":  {
+                          "Marker":  "IE5_FINAL_c3e3476c624a4451808f3944a188f2df",
+                          "Confirmed":  true,
+                          "Entry":  "2026-11-23T16:58:11.9072404+00:00 INFO IE5_FINAL_c3e3476c624a4451808f3944a188f2df"
+                      },
+    "Services":  {
+                     "LokiHTTP":  200,
+                     "AlloyHTTP":  200,
+                     "GrafanaDatabase":  "ok"
+                 },
+    "GrafanaDataSources":  [
+                               {
+                                   "Name":  "Loki",
+                                   "Type":  "loki",
+                                   "UID":  "P8E80F9AEF21F6940",
+                                   "Status":  "OK",
+                                   "Message":  "Data source successfully connected."
+                               },
+                               {
+                                   "Name":  "Prometheus",
+                                   "Type":  "prometheus",
+                                   "UID":  "PBFA97CFB590B2093",
+                                   "Status":  "OK",
+                                   "Message":  "Successfully queried the Prometheus API."
+                               }
+                           ]
+}
