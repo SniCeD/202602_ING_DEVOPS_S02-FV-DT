@@ -1,0 +1,40 @@
+{
+    "Fecha":  "2026-11-23T13:55:22.6922270-03:00",
+    "ImageTag":  "ep3-ie5-histogram-20261123-134647",
+    "DockerCompose":  "5.5.1",
+    "ExpectedReplicas":  2,
+    "Replicas":  [
+                     {
+                         "Replica":  1,
+                         "Container":  "202602_ing_devops_s02-fv-dt-cuentas-svc-1",
+                         "ContainerId":  "c561cf3f813d46ad3659a09b25a20892891411f05f23745b77acf68df67ee989",
+                         "Image":  "duoc/jv0101-caso04-cuentas:ep3-ie5-histogram-20261123-134647",
+                         "ContainerState":  "running",
+                         "Health":  "healthy",
+                         "HttpPort":  49167,
+                         "HttpStatus":  200,
+                         "ResponseTimeMs":  25,
+                         "CpuLimit":  1,
+                         "MemoryLimitMiB":  512,
+                         "MemoryReserveMiB":  128,
+                         "PidsLimit":  200,
+                         "RestartPolicy":  "unless-stopped"
+                     },
+                     {
+                         "Replica":  2,
+                         "Container":  "202602_ing_devops_s02-fv-dt-cuentas-svc-2",
+                         "ContainerId":  "eec9c2a58afe9d6e4b69f469f39785a3d111be3313e5e5ddc99a69eba803189d",
+                         "Image":  "duoc/jv0101-caso04-cuentas:ep3-ie5-histogram-20261123-134647",
+                         "ContainerState":  "running",
+                         "Health":  "healthy",
+                         "HttpPort":  49166,
+                         "HttpStatus":  200,
+                         "ResponseTimeMs":  24,
+                         "CpuLimit":  1,
+                         "MemoryLimitMiB":  512,
+                         "MemoryReserveMiB":  128,
+                         "PidsLimit":  200,
+                         "RestartPolicy":  "unless-stopped"
+                     }
+                 ]
+}
