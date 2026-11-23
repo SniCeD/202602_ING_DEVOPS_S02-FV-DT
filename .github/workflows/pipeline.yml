@@ -264,6 +264,7 @@ jobs:
         shell: bash
         run: |
           version=$(aws eks describe-cluster --region us-east-1 --name "$EKS_CLUSTER_NAME" --query cluster.version --output text)
+          echo "Versión de Kubernetes del clúster EKS: ${version}"
           release=$(curl -fsS "https://dl.k8s.io/release/stable-${version}.txt")
           cd "$RUNNER_TEMP"
           curl -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl"
