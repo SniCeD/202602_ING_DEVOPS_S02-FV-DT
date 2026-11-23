@@ -1,0 +1,12 @@
+[
+  {
+    "name": "cuentas-svc-6cfffdd76f-mv6w4",
+    "image": "ghcr.io/sniced/202602_ing_devops_s02-fv-dt:bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d",
+    "imageID": "ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:10850b23c40d669e9c604913180c128768fab4a0db3f01d229a6bf4ae0059b8f"
+  },
+  {
+    "name": "cuentas-svc-6cfffdd76f-zkg6c",
+    "image": "ghcr.io/sniced/202602_ing_devops_s02-fv-dt:bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d",
+    "imageID": "ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:10850b23c40d669e9c604913180c128768fab4a0db3f01d229a6bf4ae0059b8f"
+  }
+]

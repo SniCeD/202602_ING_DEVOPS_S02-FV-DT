@@ -1,0 +1,22 @@
+﻿UTC: 2026-11-22T23:11:20.9401084Z
+aws eks describe-cluster
+{
+    "nombre": "novabank-ep3",
+    "estado": "ACTIVE",
+    "version": "1.36"
+}
+aws eks describe-nodegroup
+{
+    "nombre": "cuentas-ep3",
+    "estado": "ACTIVE",
+    "tipos": [
+        "t3.medium"
+    ],
+    "capacidad": 1,
+    "asg": [
+        "eks-cuentas-ep3-40d102c1-60da-f0ae-53d0-ce8bb4bef91f"
+    ]
+}
+kubectl get nodes
+NAME                           STATUS   ROLES    AGE     VERSION
+ip-172-31-13-67.ec2.internal   Ready    <none>   3m41s   v1.36.5-eks-9adbfea

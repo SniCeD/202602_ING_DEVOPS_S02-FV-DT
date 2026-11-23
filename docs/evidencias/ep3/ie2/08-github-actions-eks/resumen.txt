@@ -1,0 +1,7 @@
+﻿UTC: 2026-11-23T00:09:45.7161784Z
+GitHub Actions: https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions/runs/45086754091
+Intento: 1
+SHA: bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d
+JaCoCo LINE covered=46 missed=0
+novabank_ci_line_coverage_percent 100
+novabank_ci_deploy_duration_seconds 66

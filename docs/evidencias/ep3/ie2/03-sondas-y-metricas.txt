@@ -1,0 +1,6 @@
+﻿UTC: 2026-11-22T23:13:57.7740457Z
+cuentas-svc-6bb6c448df-5ddmj: liveness=UP, readiness=UP
+cuentas-svc-6bb6c448df-mhnzg: liveness=UP, readiness=UP
+Por replica: 30 solicitudes a / (HTTP 200) y 6 al endpoint de prueba (HTTP 500).
+cuentas-svc-6bb6c448df-5ddmj | http_server_requests_seconds_bucket{application="cuentas-svc",error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="500",uri="/api/cuentas/observability/test-500",le="+Inf"} 6
+cuentas-svc-6bb6c448df-mhnzg | http_server_requests_seconds_bucket{application="cuentas-svc",error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="500",uri="/api/cuentas/observability/test-500",le="+Inf"} 6
