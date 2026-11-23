@@ -208,3 +208,83 @@ jobs:
       - name: Limpiar entorno
         if: always()
         run: docker compose down --remove-orphans
+
+  deploy-kubernetes:
+    name: Despliegue y observabilidad en EKS
+    if: ${{ github.event_name == 'push' && vars.EKS_DEPLOY_BRANCH != '' && github.ref_name == vars.EKS_DEPLOY_BRANCH && vars.EKS_CLUSTER_NAME != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: ep3-eks
+    concurrency:
+      group: ep3-eks
+      cancel-in-progress: false
+    needs:
+      - tests
+      - security-dependencies
+      - security-code
+      - docker-build
+    env:
+      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+      IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Recuperar reporte JaCoCo de esta ejecución
+        uses: actions/download-artifact@v4
+        with:
+          name: reporte-cobertura-jacoco
+          path: ${{ runner.temp }}/jacoco
+
+      - name: Validar configuración regional
+        shell: bash
+        env:
+          DEPLOY_REGION: ${{ secrets.AWS_REGION }}
+          SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        run: |
+          if [[ "$DEPLOY_REGION" != us-east-1 || -z "$SESSION_TOKEN" ]]; then
+            echo "::error::El entorno ep3-eks requiere AWS_REGION para us-east-1 y una sesión temporal."
+            exit 1
+          fi
+
+      - name: Configurar credenciales temporales de AWS Academy
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          force-skip-oidc: true
+          mask-aws-account-id: true
+
+      - name: Configurar kubectl para el clúster
+        shell: bash
+        run: |
+          version=$(aws eks describe-cluster --region us-east-1 --name "$EKS_CLUSTER_NAME" --query cluster.version --output text)
+          release=$(curl -fsS "https://dl.k8s.io/release/stable-${version}.txt")
+          cd "$RUNNER_TEMP"
+          curl -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl"
+          curl -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl.sha256"
+          printf '%s  kubectl\n' "$(cat kubectl.sha256)" | sha256sum --check
+          chmod +x kubectl
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          aws eks update-kubeconfig --region us-east-1 --name "$EKS_CLUSTER_NAME" --kubeconfig "$RUNNER_TEMP/ep3-kubeconfig" >/dev/null
+          echo "KUBECONFIG=$RUNNER_TEMP/ep3-kubeconfig" >> "$GITHUB_ENV"
+
+      - name: Desplegar, verificar y publicar métricas
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/ep3-evidence"
+          bash scripts/ep3/deploy-kubernetes.sh "$RUNNER_TEMP/jacoco/jacoco.xml" "$RUNNER_TEMP/ep3-evidence" 2>&1 \
+            | tee "$RUNNER_TEMP/ep3-evidence/deploy-kubernetes.log"
+
+      - name: Guardar evidencia del despliegue
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ep3-eks-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ep3-evidence/
+          if-no-files-found: ignore

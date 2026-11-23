@@ -23,6 +23,10 @@ spec:
 
           image: ghcr.io/sniced/202602_ing_devops_s02-fv-dt:IMAGE_TAG
 
+          env:
+            - name: SPRING_APPLICATION_JSON
+              value: '{"management":{"endpoint":{"health":{"probes":{"enabled":true}}},"metrics":{"distribution":{"percentiles-histogram":{"http.server.requests":true}}}}}'
+
           ports:
             - containerPort: 8080
 
