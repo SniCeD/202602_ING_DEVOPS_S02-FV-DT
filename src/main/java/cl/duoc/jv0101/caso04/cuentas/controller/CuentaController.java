@@ -53,4 +53,12 @@ public class CuentaController {
         return service.delete(id) ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/observability/test-500")
+    public ResponseEntity<Void> testError500() {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build();
+}
+
 }

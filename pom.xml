@@ -53,6 +53,17 @@
             <version>${springdoc.version}</version>
         </dependency>
 
+        <!-- Observabilidad EP3 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
         <!-- Dependencias de pruebas para los módulos utilizados -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,0 +1,1 @@
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"novabank_ci_deploy_duration_seconds","job":"novabank-ci"},"value":[1795392554.425,"66"]}]}}

@@ -1,0 +1,35 @@
+﻿UTC: 2026-11-22T23:56:35.4257185Z
+Despliegue manual de preparacion, con EKS operativo al cierre.
+kubectl get nodes
+NAME                            STATUS   ROLES    AGE    VERSION
+ip-172-31-94-175.ec2.internal   Ready    <none>   119s   v1.36.5-eks-9adbfea
+Waiting for deployment "cuentas-svc" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "cuentas-svc" rollout to finish: 1 of 2 updated replicas are available...
+deployment "cuentas-svc" successfully rolled out
+Waiting for deployment "prometheus" rollout to finish: 0 of 1 updated replicas are available...
+deployment "prometheus" successfully rolled out
+Waiting for deployment "grafana" rollout to finish: 0 of 1 updated replicas are available...
+deployment "grafana" successfully rolled out
+deployment "pushgateway" successfully rolled out
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cuentas-svc   2/2     2            2           83s
+deployment.apps/grafana       1/1     1            1           44s
+deployment.apps/prometheus    1/1     1            1           44s
+deployment.apps/pushgateway   1/1     1            1           43s
+
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/cuentas-svc-6bb6c448df-bvw8s   1/1     Running   0          83s
+pod/cuentas-svc-6bb6c448df-jnd7c   1/1     Running   0          83s
+pod/grafana-5d555c8649-4mnvr       1/1     Running   0          44s
+pod/prometheus-86b8f4c96-582xg     1/1     Running   0          44s
+pod/pushgateway-5879cd88d5-ffq4m   1/1     Running   0          43s
+
+NAME                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/cuentas-metrics   ClusterIP   None             <none>        8080/TCP   47s
+service/cuentas-svc       ClusterIP   10.100.213.80    <none>        80/TCP     94s
+service/grafana           ClusterIP   10.100.15.92     <none>        3000/TCP   46s
+service/prometheus        ClusterIP   10.100.178.221   <none>        9090/TCP   46s
+service/pushgateway       ClusterIP   10.100.224.62    <none>        9091/TCP   46s
+Service cuentas-svc: HTTP 200 y dos endpoints listos.
+cuentas-svc-6bb6c448df-bvw8s | image=ghcr.io/sniced/202602_ing_devops_s02-fv-dt:7ad26ce436f0623d133db5f2a7938e5b201c9ed2 | imageID=ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:95e814a9bc410e00dc4a1f6f0869711f5922c99ee537073ab6edec55435d852c | liveness=UP | readiness=UP
+cuentas-svc-6bb6c448df-jnd7c | image=ghcr.io/sniced/202602_ing_devops_s02-fv-dt:7ad26ce436f0623d133db5f2a7938e5b201c9ed2 | imageID=ghcr.io/sniced/202602_ing_devops_s02-fv-dt@sha256:95e814a9bc410e00dc4a1f6f0869711f5922c99ee537073ab6edec55435d852c | liveness=UP | readiness=UP

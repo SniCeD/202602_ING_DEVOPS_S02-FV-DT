@@ -1,0 +1,14 @@
+﻿UTC: 2026-11-22T23:57:47.7387843Z
+Dashboard: novabank-cuentas. Validacion en EKS antes del primer deploy-kubernetes.
+Cuentas: 18 respuestas HTTP 200 y 18 respuestas HTTP 500 controladas por replica.
+cuentas-svc | http://172.31.87.43:8080/actuator/prometheus | health=up | lastScrape=2026-11-22T23:57:39.953416192Z
+cuentas-svc | http://172.31.85.214:8080/actuator/prometheus | health=up | lastScrape=2026-11-22T23:57:36.464443946Z
+pushgateway | http://pushgateway:9091/metrics | health=up | lastScrape=2026-11-22T23:57:28.763694593Z
+novabank_ci_deploy_duration_seconds{job="novabank-ci"} | pendiente de GitHub Actions
+novabank_ci_line_coverage_percent{job="novabank-ci"} | pendiente de GitHub Actions
+sum(jvm_memory_used_bytes{job="cuentas-svc"}) | valor=312716192
+avg(process_cpu_usage{job="cuentas-svc"}) | valor=0.024836601307189544
+sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*",status=~"5.."}[2m])) | valor=0.3186111111111111
+sum(rate(logback_events_total{job="cuentas-svc",level="error"}[2m])) | valor=0
+sum(rate(http_server_requests_seconds_count{job="cuentas-svc",uri!~"/actuator.*"}[2m])) | valor=0.6532977777777778
+histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="cuentas-svc",uri!~"/actuator.*"}[2m]))) | valor=0.008888640846587678
