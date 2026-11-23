@@ -1,0 +1,14 @@
+title = "Cuentas Service - Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "SonarQube project key is a public identifier, not a secret."
+  condition = "AND"
+  regexTarget = "line"
+  paths = ['''(^|/)\.github/workflows/pipeline\.yml$''']
+  regexes = ['''^\s*-Dsonar\.projectKey=SniCeD_202602_ING_DEVOPS_S02-FV-DT\s*$''']

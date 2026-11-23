@@ -171,7 +171,6 @@ Estos parámetros ayudan a evitar que el contenedor consuma
 recursos de forma ilimitada. Los valores son iniciales y deben
 validarse con pruebas de carga antes de usarse en producción.
 
-
 ## Despliegue automático y trazabilidad (IE4)
 
 El pipeline de GitHub Actions incorpora un despliegue automático en un entorno simulado utilizando Docker Compose.
@@ -229,7 +228,6 @@ Para obtener el puerto asignado a cada réplica:
 
 docker compose port --index=1 cuentas-svc 8080
 docker compose port --index=2 cuentas-svc 8080
-
 
 ## Pipeline CI/CD
 
@@ -401,11 +399,11 @@ Incluyen la validación del target `cuentas-svc` en Prometheus, métricas de uso
 
 ### EP3 — IE2 e IE3 en Amazon EKS
 
-El entorno de prueba se validó en EKS 1.36 con soporte estándar en `us-east-1` y un grupo administrado de un nodo `t3.medium`. Cuentas tiene dos réplicas y sondas de Actuator. Prometheus descubre cada réplica mediante el Service headless `cuentas-metrics`. Grafana provisiona **NovaBank · Cuentas** desde el repositorio.
+La validación histórica inicial se realizó en EKS 1.36, en `us-east-1`, con un grupo administrado de un nodo `t3.medium`. Esta información corresponde a una ejecución anterior y no describe el estado actual del clúster. Cuentas tiene dos réplicas y sondas de Actuator. Prometheus descubre cada réplica mediante el Service headless `cuentas-metrics`. Grafana provisiona **NovaBank · Cuentas** desde el repositorio.
 
 #### Despliegue desde GitHub Actions
 
-`deploy-kubernetes` se ejecuta en un push a la rama configurada tras las pruebas, los dos análisis de Snyk y la publicación de la imagen del mismo SHA. GitHub usa las variables de repositorio `EKS_DEPLOY_BRANCH` (`feature/ep3-ie1-ie3-observability`) y `EKS_CLUSTER_NAME` (`novabank-ep3`). La ejecución de prueba usó los secretos de repositorio `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `AWS_REGION` (`us-east-1`). Renueva los tres valores de la sesión de AWS Academy cuando caduquen. La sesión debe poder describir el clúster y su principal IAM debe tener acceso Kubernetes para desplegar y verificar en `ep3`, crear ese namespace y usar `port-forward`. El runner debe alcanzar la API de EKS.
+`deploy-kubernetes` se ejecuta en un push a la rama configurada tras las pruebas, los dos análisis de Snyk y la publicación de la imagen del mismo SHA. GitHub usa las variables de repositorio `EKS_DEPLOY_BRANCH` (`rama configurada en GitHub`) y `EKS_CLUSTER_NAME` (`novabank-ep3`). La ejecución de prueba usó los secretos de repositorio `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `AWS_REGION` (`us-east-1`). Renueva los tres valores de la sesión de AWS Academy cuando caduquen. La sesión debe poder describir el clúster y su principal IAM debe tener acceso Kubernetes para desplegar y verificar en `ep3`, crear ese namespace y usar `port-forward`. El runner debe alcanzar la API de EKS.
 
 El job valida las dos réplicas del SHA, el Service, sus endpoints y las sondas de cada pod. Después aplica Prometheus, Grafana y Pushgateway. Publica los datos a través de un `kubectl port-forward` a Pushgateway, un Service interno. El artefacto `ep3-eks-<sha>-<intento>` guarda el registro, las imágenes y digests de las réplicas, los endpoints, las métricas enviadas y las respuestas consultadas a través de Grafana. Encontrarás la cobertura en `ci-metrics.prom` y la duración medida junto a ella.
 
@@ -446,8 +444,86 @@ La duración se mide en segundos desde la primera aplicación de los manifiestos
 
 La [ejecución 45086754091](https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions/runs/45086754091) verificó el despliegue automático del SHA `bf6afb16ed9bbc4645d0ee42792ed8be5b7d194d`. Sus artefactos registraron **66 segundos** de despliegue y **100%** de cobertura JaCoCo de líneas (46 cubiertas y 0 omitidas). Las [evidencias de IE2](docs/evidencias/ep3/ie2/) y [evidencias de IE3](docs/evidencias/ep3/ie3/) incluyen las comprobaciones en EKS y conservan la validación manual anterior. El despliegue simulado de Compose sigue disponible.
 
-El entorno EKS se conserva operativo para revisar las evidencias y volver a ejecutar las pruebas. La retirada del entorno requiere autorización expresa.
+**Estado posterior (23 de noviembre de 2026):** el diagnóstico posterior encontró el clúster en Kubernetes 1.37, con el grupo administrado `novabank-workers` configurado para dos instancias `t3.medium`. Aunque las instancias EC2 se creaban, no conseguían registrarse como nodos Kubernetes `Ready`.
 
+Los registros de arranque identificaron una denegación explícita de la política SCP de AWS Organizations sobre `ec2:DescribeInstances`, que impide completar la inicialización de los workers. También se detectaron restricciones IAM para crear roles y asociar políticas.
+
+La ejecución posterior [45197178472](https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions/runs/45197178472) terminó con el error `deployment "cuentas-svc" exceeded its progress deadline`. Por este motivo, no se debe considerar que el entorno EKS continúa operativo. La ejecución exitosa anterior se conserva exclusivamente como evidencia histórica.
+
+El diagnóstico y las restricciones identificadas están documentados en [Limitación de despliegue en Amazon EKS — AWS Academy](docs/evidencias/ep3/ie2/limitacion-eks-aws-academy.md).
+
+### EP3 — IE4: Documentación de decisiones y herramientas
+
+En esta sección se documentan las decisiones tomadas para seleccionar las herramientas utilizadas en el proyecto, considerando su función dentro del pipeline y la observabilidad del microservicio.
+
+La documentación detallada se encuentra en [Decisiones sobre las herramientas](docs/evidencias/ep3/ie4/decisiones-herramientas.md).
+
+El diagrama general se encuentra en [Pipeline CI/CD — EP2 y EP3](docs/diagramas/pipeline-ep3.md).
+### EP3 — IE5: Cumplimiento de controles de seguridad
+
+El cumplimiento de esta parte se aborda mediante tres vías: el Quality Gate de SonarQube, la protección de la rama principal y las auditorías de seguridad realizadas al repositorio y a la imagen Docker.
+
+#### 1. Quality Gate de SonarQube
+
+SonarQube permite comprobar la calidad del código mediante un Quality Gate. El paso está configurado para ejecutarse en los push a `main` y en los Pull Requests cuya rama de destino sea `main`.
+
+Si el Quality Gate no se aprueba, el job de pruebas falla y los trabajos que dependen de él no pueden continuar.
+
+#### 2. Protección de la rama main
+
+Se configuró el ruleset `EP3 - proteger main`, aplicado a la rama `main`. Este exige integrar los cambios mediante Pull Request y tener aprobados los controles de estado obligatorios.
+
+Los controles configurados son:
+
+- Pruebas, cobertura y SonarQube Quality Gate.
+- Snyk - análisis de dependencias.
+- Snyk - análisis de código.
+- Auditoría de secretos (Gitleaks).
+- Construcción de imagen Docker.
+- Auditoría de imagen Docker (Trivy).
+- Despliegue simulado con Docker Compose.
+
+De esta manera, los cambios no pueden integrarse a `main` mientras falte alguno de los controles obligatorios.
+
+#### 3. Auditorías propias de seguridad
+
+Se incorporaron herramientas para revisar distintos riesgos del proyecto:
+
+- **Snyk:** revisa las dependencias Maven y el código para detectar posibles vulnerabilidades.
+- **Gitleaks:** revisa el historial y el directorio de trabajo para detectar secretos que puedan quedar expuestos.
+- **Trivy:** analiza la imagen Docker y utiliza las vulnerabilidades `CRITICAL` como condición de bloqueo.
+
+En las comprobaciones locales realizadas, Gitleaks no encontró secretos y Trivy no detectó vulnerabilidades críticas en la imagen analizada. Esto demuestra el resultado de esas ejecuciones, pero no reemplaza la prueba controlada de fallo descrita en IE6.
+
+Resultados de las auditorías:
+
+- [Validación de Gitleaks](docs/evidencias/ep3/ie6/04-gitleaks-validation.json).
+- [Análisis de imagen con Trivy](docs/evidencias/ep3/ie6/05-trivy-image.json).
+- [Validación de Trivy](docs/evidencias/ep3/ie6/06-trivy-validation.json).
+
+### EP3 — IE6: Demostración del bloqueo del pipeline
+
+El pipeline utiliza dependencias entre trabajos para evitar que una etapa posterior continúe cuando una validación anterior falla.
+
+El flujo comienza con las pruebas y los análisis de seguridad. Cuando estas comprobaciones terminan correctamente, se permite construir la imagen Docker. Después, Trivy analiza la imagen antes de permitir su publicación o despliegue.
+
+La publicación en GHCR depende de las validaciones anteriores y se realiza solamente en los eventos `push` configurados. El despliegue en EKS también requiere la publicación de la imagen y utiliza el entorno `ep3-eks`, que tiene revisores requeridos.
+
+#### Evidencias disponibles
+
+Se conservan resultados de las pruebas automatizadas, Gitleaks y Trivy en [docs/evidencias/ep3/ie6/](docs/evidencias/ep3/ie6/). Estas evidencias corresponden a ejecuciones en las que los controles finalizaron correctamente.
+
+#### Prueba controlada de bloqueo
+
+**Prueba controlada realizada:** el 23 de noviembre de 2026 se ejecutó una prueba en la rama `feature/demo-ie6-gitleaks-block`, utilizando un secreto completamente ficticio.
+
+En la [ejecución #54 de GitHub Actions](https://github.com/SniCeD/202602_ING_DEVOPS_S02-FV-DT/actions/runs/45238972146), Gitleaks detectó un hallazgo mediante la regla `aws-access-token` y terminó con `failure`.
+
+Como resultado, la construcción de la imagen Docker, el análisis Trivy, la publicación en GHCR y los despliegues de Docker Compose y EKS quedaron en estado `skipped`, debido a las dependencias configuradas en el workflow.
+
+La evidencia detallada se encuentra en [07-demostracion-bloqueo-gitleaks.md](docs/evidencias/ep3/ie6/07-demostracion-bloqueo-gitleaks.md). También se publicó el artefacto `gitleaks-results.sarif` con el reporte de detección.
+
+La prueba se realizó en una rama separada, sin crear un Pull Request ni integrar el archivo ficticio en `main`.
 
 
 ## Cómo ejecutar con Docker

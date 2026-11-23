@@ -26,7 +26,8 @@ spec:
           env:
             - name: SPRING_APPLICATION_JSON
               value: '{"management":{"endpoint":{"health":{"probes":{"enabled":true}}},"metrics":{"distribution":{"percentiles-histogram":{"http.server.requests":true}}}}}'
-
+            - name: SPRING_H2_CONSOLE_ENABLED
+              value: "false"
           ports:
             - containerPort: 8080
 
