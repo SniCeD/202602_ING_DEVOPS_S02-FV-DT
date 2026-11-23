@@ -73,8 +73,13 @@ jobs:
           java-version: "21"
           cache: maven
 
+      - name: Instalar Snyk CLI
+        uses: snyk/actions/setup@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        with:
+          snyk-version: v1.1309.0
+
       - name: Snyk - análisis de dependencias
-        run: npx --yes snyk test --severity-threshold=high --json-file-output=snyk-dependencies.json
+        run: snyk test --severity-threshold=high --json-file-output=snyk-dependencies.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -95,8 +100,13 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v7
 
+      - name: Instalar Snyk CLI
+        uses: snyk/actions/setup@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        with:
+          snyk-version: v1.1309.0
+
       - name: Snyk - análisis estático de código
-        run: npx --yes snyk code test --severity-threshold=high --json-file-output=snyk-code.json
+        run: snyk code test --severity-threshold=high --json-file-output=snyk-code.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -124,7 +134,7 @@ jobs:
           fetch-depth: 0
 
       - name: Detectar secretos con Gitleaks
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: "false"
@@ -180,7 +190,7 @@ jobs:
         run: docker load --input cuentas-svc.tar
 
       - name: Detectar vulnerabilidades críticas con Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
           image-ref: duoc/jv0101-caso04-cuentas:${{ github.sha }}
@@ -423,7 +433,7 @@ jobs:
           fi
 
       - name: Configurar credenciales temporales de AWS Academy
-        uses: aws-actions/configure-aws-credentials@v6.3.0
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -439,8 +449,8 @@ jobs:
           echo "Versión de Kubernetes del clúster EKS: ${version}"
           release=$(curl -fsS "https://dl.k8s.io/release/stable-${version}.txt")
           cd "$RUNNER_TEMP"
-          curl -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl"
-          curl -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl.sha256"
+          curl --proto '=https' --proto-redir '=https' -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl"
+          curl --proto '=https' --proto-redir '=https' -fsSLO "https://dl.k8s.io/release/${release}/bin/linux/amd64/kubectl.sha256"
           printf '%s  kubectl\n' "$(cat kubectl.sha256)" | sha256sum --check
           chmod +x kubectl
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
