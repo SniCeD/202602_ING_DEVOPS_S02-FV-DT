@@ -11,9 +11,17 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
         - name: prometheus
           image: prom/prometheus:v3.16.0
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
           args: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=6h"]
           ports:
             - containerPort: 9090
@@ -45,6 +53,13 @@ spec:
       containers:
         - name: grafana
           image: grafana/grafana:13.3.1
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           env:
             - name: GF_AUTH_ANONYMOUS_ENABLED
               value: "true"
@@ -92,6 +107,13 @@ spec:
       containers:
         - name: pushgateway
           image: prom/pushgateway:v1.11.1
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
           ports:
             - containerPort: 9091
           readinessProbe:
