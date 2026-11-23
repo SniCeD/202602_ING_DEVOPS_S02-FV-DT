@@ -225,9 +225,12 @@ jobs:
         run: docker load --input cuentas-svc.tar
 
       - name: Iniciar sesión en GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_ACTOR: ${{ github.actor }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
-            -u "${{ github.actor }}" \
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "$GHCR_ACTOR" \
             --password-stdin
 
       - name: Etiquetar imagen para GHCR
