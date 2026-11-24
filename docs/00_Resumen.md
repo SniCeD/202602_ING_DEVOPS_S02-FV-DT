@@ -2,7 +2,7 @@
 
 ## Propósito
 
-administra los datos y la lógica del dominio de Cuentas del caso caso04 (NovaBank).
+Administra los datos y la lógica del dominio de Cuentas del caso caso04 (NovaBank).
 
 ## Contexto
 
@@ -18,7 +18,7 @@ El servicio atiende un único dominio de negocio y tiene una sola razón de camb
 
 | Componente | Tecnología |
 |---|---|
-| Framework | Spring Boot 3.3 |
+| Framework | Spring Boot 4.1.3 |
 | Lenguaje | Java 21 |
 | Build | Maven |
 | Persistencia | Spring Data JPA + H2 (in-memory) |
