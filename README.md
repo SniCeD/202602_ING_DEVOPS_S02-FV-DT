@@ -628,9 +628,10 @@ Se utilizó ChatGPT como apoyo para consultas técnicas, resolución de errores 
 
 ## Conclusiones
 
-### Reflexiones (EP2)
+### Reflexiones (EP3)
 
-Fernando Valenzuela: Aprendí como configurar Snyk con actions para analizar vulnerabilidades, tuve que pelear con las vulnerabilidades que detecto el Snyk para mitigarlas pero al final se logró, aplicaría esto para el proyecto de portafolio de titulo que estamos haciendo, así nos va a quedar un proyecto mucho más profesional.
+Fernando Valenzuela: Aprendí a configurar y utilizar distintas herramientas de monitoreo y seguridad para el proyecto. También tuve que trabajar en las validaciones de SonarQube, Snyk, Gitleaks y Trivy para asegurarme de que el pipeline funcionara correctamente. Lo que más me llamó la atención fue probar que Gitleaks pudiera detectar un secreto falso y bloquear el pipeline, evitando que continuaran las etapas siguientes. De seguro usaré todo lo que aprendí en esta clase en los futuros proyectos en los que participe.
 
-Dacier Tapia: Esta evaluación me permitió entender como funciona el despliegue CI/CD, con pruebas, seguridad, la construcción y el despliegue, dependiendo unas de otras. Además del uso de réplicas y healthchecks.
-Tuve problemas con el tema de los puertos ya que se sobreponían al ser estáticos, pero al no especificarlos, se volvieron dinámicos y funcionó todo bien.
+Dacier Tapia: Pude entender mejor como funcionan las herramientas de monitoreo, haciendo uso de métricas, logs y health checks a través de Prometheus, y su graficación mediante Grafana y como se despliegan en el ambiente de Kubernetes.
+Lo más dificil fue usar el AWS con EKS, los permisos, ya que habían restricciones relacionadas con este punto, los node groups, credenciales y demás.
+Aprendí que el monitoreo es fundamental, ya que nos permite mantener un control y una gestión de los servicios, más centralizada y automatizada.
